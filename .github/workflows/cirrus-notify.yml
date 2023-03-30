@@ -27,3 +27,25 @@ jobs:
           echo "##[error]See $CHECK_RUN_URL for details" && false
         env:
           CHECK_RUN_URL: ${{ fromJson(steps.get_failed_check_run.outputs.data).check_runs[0].html_url }}
+
+  binder:
+    name: Build Binder Image
+    if: >-
+      github.event.check_suite.app.name == 'Cirrus CI'
+      && github.event.check_suite.conclusion == 'success'
+      && github.event.check_suite.head_branch == 'main'
+      && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout notebook branch
+      uses: actions/checkout@v3
+      with:
+        ref: out
+    - name: repo2docker
+      uses: jupyterhub/repo2docker-action@master
+      with:
+        DOCKER_REGISTRY: ghcr.io
+        DOCKER_USERNAME: ${{ github.repository_owner }}
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        BINDER_CACHE: true
+        PUBLIC_REGISTRY_CHECK: true

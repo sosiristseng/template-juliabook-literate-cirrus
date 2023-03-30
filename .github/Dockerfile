@@ -15,6 +15,7 @@ WORKDIR /app
 # Julia environment
 COPY Project.toml Manifest.toml ./
 COPY src/ src
-RUN julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
+RUN julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()' &&\
+     [[ -d .CondaPkg ]] && rm -rf .CondaPkg
 
 CMD ["jupyter-book"]

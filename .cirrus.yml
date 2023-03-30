@@ -14,11 +14,13 @@ jupyter_book_task:
   upload_notebook_script: |
     if [[ $CIRRUS_BRANCH == 'main' ]]; then
       echo "Uploading notebooks"
-      echo ".cirrus.yml" >> .gitignore
-      echo ".github/" >> .gitignore
-      git config http.postBuffer 524288000
+      mkdir -p out
+      cp *.toml *.txt *.md out/
+      cp -R docs out/
+      cp -R src out/
       git remote set-url origin https://${GH_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
-      ghp-import -nofpb out $CIRRUS_WORKING_DIR
+      ghp-import -nofp -b out out/
+      rm -rf out/
     fi
   jbook_script: jupyter-book build docs/ --keep-going
   ## Requires a repo scope access GitHub PAT encrypted to `GH_TOKEN` to push to its GitHub repo

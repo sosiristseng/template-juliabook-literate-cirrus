@@ -2,6 +2,10 @@ on:
   check_suite:
     type: ['completed']
 
+permissions:
+  packages: write
+  contents: write
+
 name: Build binder image
 jobs:
   binder:

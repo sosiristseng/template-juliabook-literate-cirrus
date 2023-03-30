@@ -10,6 +10,7 @@ pipe:
     GH_TOKEN: ENCRYPTED[!1695a1dc15db89867633ee9a039d510ba95371283caa77b353163ccfb463ccd6c51a9a1d4130906fd4f2abb6333d8a56!]
     GKSwstype: 100
     JULIA_PROJECT: $CIRRUS_WORKING_DIR
+    JULIA_NUM_PRECOMPILE_TASKS: 4
   steps:
     - image: julia:1.8.5
       julia_cache:

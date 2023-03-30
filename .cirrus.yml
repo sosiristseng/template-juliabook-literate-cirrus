@@ -16,6 +16,7 @@ jupyter_book_task:
       echo "Uploading notebooks"
       echo ".cirrus.yml" >> .gitignore
       echo ".github/" >> .gitignore
+      git config http.postBuffer 524288000
       git remote set-url origin https://${GH_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git
       ghp-import -nofpb out $CIRRUS_WORKING_DIR
     fi

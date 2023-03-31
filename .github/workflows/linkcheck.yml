@@ -27,8 +27,6 @@ jobs:
           python-version: ${{ env.PYTHON_VER }}
       - name: Setup Julia
         uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
       - name: Convert literate notebooks to Markdown
         shell: julia --color=yes {0}
         run: |

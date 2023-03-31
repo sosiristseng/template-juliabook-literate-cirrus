@@ -1,4 +1,4 @@
-FROM ghcr.io/sosiristseng/juliabook:1.8.5.2
+FROM ghcr.io/sosiristseng/juliabook:1.8.5.3
 
 # Python env
 COPY requirements.txt .

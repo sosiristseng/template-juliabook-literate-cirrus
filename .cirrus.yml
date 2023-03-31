@@ -12,7 +12,6 @@ jupyter_book_task:
     cpu: 1
     memory: 4G
     greedy: true
-  julia_dep_script: julia -e 'import Pkg; Pkg.instantiate(); Pkg.resolve();'
   literate_script: julia -p $NPROC literate.jl
   upload_notebook_script: |
     if [[ $CIRRUS_BRANCH == 'main' ]]; then

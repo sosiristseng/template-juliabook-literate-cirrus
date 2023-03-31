@@ -53,7 +53,6 @@ jobs:
         jupyter-repo2docker
         --image-name ${{ env.IMAGE_NAME }}
         --cache-from ${{ env.IMAGE_NAME }}
-        -e JULIA_CONDAPKG_BACKEND=Null
         --push --no-run --user-id 1000 --user-name jovyan
         .
     - name: Add binder Dockerfile

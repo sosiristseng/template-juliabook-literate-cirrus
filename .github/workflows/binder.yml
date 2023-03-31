@@ -1,12 +1,21 @@
+name: Build binder image
+
 on:
   check_suite:
     type: ['completed']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   packages: write
   contents: write
 
-name: Build binder image
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
+  PYTHON_VER: '3.11'
+
 jobs:
   binder:
     name: Build Binder Image
@@ -22,11 +31,37 @@ jobs:
       with:
         ref: out
         fetch-depth: 0
-    - name: repo2docker
-      uses: jupyterhub/repo2docker-action@master
+    - name: Setup Python ${{ env.PYTHON_VER }}
+      uses: actions/setup-python@v4
+      id: python
       with:
-        DOCKER_REGISTRY: ghcr.io
-        DOCKER_USERNAME: ${{ github.repository_owner }}
-        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        BINDER_CACHE: true
-        PUBLIC_REGISTRY_CHECK: true
+        python-version: ${{ env.PYTHON_VER }}
+    - name: Install repo2docker
+      run: python3 -m pip install https://github.com/jupyterhub/repo2docker/archive/main.zip
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Pull Image
+      run: docker pull ${{ env.IMAGE_NAME }} || true
+    - name: Build binder image with repo2docker
+      run: >
+        jupyter-repo2docker
+        --image-name ${{ env.IMAGE_NAME }}
+        --cache-from ${{ env.IMAGE_NAME }}
+        -e JULIA_CONDAPKG_BACKEND=Null
+        --push --no-run --user-id 1000 --user-name jovyan
+        .
+    - name: Add binder Dockerfile
+      run: |
+        mkdir -p .binder
+        echo "FROM ${{ env.IMAGE_NAME }}" >> .binder/Dockerfile
+    - name: Git push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Add Dockerfile"
+        git push

@@ -20,6 +20,7 @@ jupyter_book_task:
       - julia --version
       - cat Manifest.toml
   julia_dep_script: julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve();'
+  literate_script: julia --color=yes -p $NPROC literate.jl
   upload_notebook_script: |
     if [[ $CIRRUS_BRANCH == 'main' ]]; then
       echo "Uploading notebooks"
@@ -31,7 +32,6 @@ jupyter_book_task:
       ghp-import -nofp -b out out/
       rm -rf out/
     fi
-  literate_script: julia --color=yes -p $NPROC literate.jl
   jbook_script: jupyter-book build docs/ --keep-going
   ## Requires a repo scope access GitHub PAT encrypted to `GH_TOKEN` to push to its GitHub repo
   pages_script: |

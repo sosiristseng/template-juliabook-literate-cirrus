@@ -19,7 +19,7 @@ jupyter_book_task:
       - echo $CIRRUS_OS
       - julia --version
       - cat Manifest.toml
-  julia_dep_script: julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve();
+  julia_dep_script: julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve();'
   upload_notebook_script: |
     if [[ $CIRRUS_BRANCH == 'main' ]]; then
       echo "Uploading notebooks"

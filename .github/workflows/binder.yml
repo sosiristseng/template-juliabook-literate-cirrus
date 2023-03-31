@@ -29,7 +29,7 @@ jobs:
     - name: Checkout notebook branch
       uses: actions/checkout@v3
       with:
-        ref: out
+        ref: gh-pages
         fetch-depth: 0
     - name: Setup Python ${{ env.PYTHON_VER }}
       uses: actions/setup-python@v4
@@ -54,7 +54,7 @@ jobs:
         --image-name ${{ env.IMAGE_NAME }}
         --cache-from ${{ env.IMAGE_NAME }}
         --push --no-run --user-id 1000 --user-name jovyan
-        .
+        _sources
     - name: Add binder Dockerfile
       run: |
         mkdir -p .binder

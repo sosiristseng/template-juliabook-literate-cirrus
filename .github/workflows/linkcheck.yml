@@ -10,28 +10,24 @@ on:
     paths:
       - '.github/workflows/linkcheck.yml'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   linkcheck:
     runs-on: ubuntu-latest
-    container: ghcr.io/sosiristseng/juliabook:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v1
       - name: Convert literate notebooks to Markdown
         shell: julia --color=yes {0}
+        working-directory: docs/
         run: |
           import Pkg
           Pkg.add("Literate")
           using Literate
-          config = Dict("mdstrings" => true)
-          folder = joinpath(pwd(), "docs")
-          for nb in readdir(folder)
+          for nb in readdir(pwd())
               if endswith(nb, ".jl")
-                Literate.markdown(joinpath(folder, nb), folder; config, flavor = Literate.CommonMarkFlavor())
+                Literate.markdown(nb; mdstrings=true, flavor = Literate.CommonMarkFlavor())
               end
           end
       - name: Restore lychee cache

@@ -12,7 +12,7 @@ jupyter_book_task:
     cpu: 1
     memory: 4G
     greedy: true
-  literate_script: julia -p $NPROC literate.jl
+  literate_script: julia -p ${NPROC} literate.jl
   jbook_script: jupyter-book build docs/ --keep-going
   ## Requires a repo scope access GitHub PAT encrypted to `GH_TOKEN` to push to its GitHub repo
   pages_script: |

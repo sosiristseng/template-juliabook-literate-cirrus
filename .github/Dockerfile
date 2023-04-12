@@ -19,6 +19,8 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN pip install --upgrade --no-cache-dir pip wheel setuptools && pip install --no-cache-dir -r requirements.txt
 
+COPY *.toml ./
+COPY src/ src
 RUN julia --project=@. --color=yes -e 'import Pkg; Pkg.Registry.update(); Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
 
 CMD ["jupyter-book"]

@@ -2,7 +2,7 @@ name: Build binder image
 
 on:
   check_suite:
-    type: ['completed']
+    types: ['completed']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

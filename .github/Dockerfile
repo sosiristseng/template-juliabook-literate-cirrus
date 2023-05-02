@@ -8,8 +8,6 @@ ENV JULIA_PATH /usr/local/julia/
 ENV PATH ${JULIA_PATH}/bin:${PATH}
 COPY --from=julia:1.8.5 ${JULIA_PATH} ${JULIA_PATH}
 
-WORKDIR /work
-
 # System packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
@@ -21,6 +19,7 @@ RUN pip install --upgrade --no-cache-dir pip wheel setuptools && pip install --n
 
 COPY *.toml ./
 COPY src/ src
-RUN julia --project=@. --color=yes -e 'import Pkg; Pkg.Registry.update(); Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
+RUN JULIA_PROJECT="" julia --color=yes -e 'import Pkg; Pkg.Registry.update(); Pkg.add(["Literate", "PrettyTables"])' && \
+    JULIA_PROJECT=@. julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
 
 CMD ["jupyter-book"]

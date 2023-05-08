@@ -15,6 +15,7 @@ permissions:
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
   PYTHON_VER: '3.11'
+  ARTIFACT_NAME: 'notebooks.zip'
 
 jobs:
   binder:
@@ -28,9 +29,13 @@ jobs:
     steps:
     - name: Checkout notebook branch
       uses: actions/checkout@v3
-      with:
-        ref: gh-pages
-        fetch-depth: 0
+    - name: Download notebooks
+      run: wget -qO ${{ env.ARTIFACT_NAME }} https://api.cirrus-ci.com/v1/artifact/github/${{ github.repository }}/jupyter_book/${{ env.ARTIFACT_NAME }}?branch=main
+    - name: Extract notebooks (overwrite mode)
+      run: unzip -o ${{ env.ARTIFACT_NAME }}
+    - name: Display notebooks
+      run: ls -R
+      working-directory: docs/
     - name: Setup Python ${{ env.PYTHON_VER }}
       uses: actions/setup-python@v4
       id: python
@@ -54,10 +59,16 @@ jobs:
         --image-name ${{ env.IMAGE_NAME }}
         --cache-from ${{ env.IMAGE_NAME }}
         --push --no-run --user-id 1000 --user-name jovyan
-        _sources
+        .
     - name: Add binder Dockerfile
       run: |
         mkdir -p .binder
-        echo "FROM ${{ env.IMAGE_NAME }}" >> .binder/Dockerfile
-    - name: Push changes
-      uses: stefanzweifel/git-auto-commit-action@v4
+        echo "FROM ${{ env.IMAGE_NAME }}" > .binder/Dockerfile
+    - name: Create Pull Request
+      id: cpr
+      uses: peter-evans/create-pull-request@v5
+      with:
+        title: Binder dockerfile update
+        branch: binderfile
+        add-paths: |
+          .binder/Dockerfile

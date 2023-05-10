@@ -6,7 +6,7 @@ ENV JULIA_NUM_THREADS "auto"
 ENV JULIA_CONDAPKG_BACKEND "Null"
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH ${JULIA_PATH}/bin:${PATH}
-COPY --from=julia:1.8.5 ${JULIA_PATH} ${JULIA_PATH}
+COPY --from=julia:1.9.0 ${JULIA_PATH} ${JULIA_PATH}
 
 # Python dependencies
 COPY requirements.txt .

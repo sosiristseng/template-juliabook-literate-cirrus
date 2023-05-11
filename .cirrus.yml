@@ -22,12 +22,12 @@ jupyter_book_task:
     - pip install -r requirements.txt
   julia_cache:
     folder: ~/.julia
-  upload_caches:
-    - pip
-    - julia
   julia_deps_script:
     - JULIA_PROJECT="" julia --color=yes -e 'import Pkg; Pkg.Registry.update(); Pkg.add(["Literate", "PrettyTables"])'
     - JULIA_PROJECT=@. julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile(); Pkg.gc()'
+  upload_caches:
+    - pip
+    - julia
   literate_script:
     - julia -p ${NPROC} literate.jl
   notebooks_artifacts:

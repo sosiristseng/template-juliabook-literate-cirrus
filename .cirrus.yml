@@ -3,13 +3,32 @@ jupyter_book_task:
   auto_cancellation: true
   env:
     NPROC: 2
+    JULIA_NUM_PRECOMPILE_TASKS: 4
     GKSwstype: 100
     JULIA_PROJECT: $CIRRUS_WORKING_DIR
   container:
-    dockerfile: .github/Dockerfile
+    image: python:3.11.3-slim
     cpu: 1
     memory: 4G
     greedy: true
-  literate_script: julia -p ${NPROC} literate.jl
+  get_julia_version_script:
+    - echo "JULIA_VERSION=$(python read_toml.py)" | tee -a "$CIRRUS_ENV"
+  install_julia_script:
+    - apt-get update && apt_get install -y curl
+    - sh -c "$(curl https://raw.githubusercontent.com/ararslan/CirrusCI.jl/master/bin/install.sh)"
+  pip_cache:
+    folder: ~/.cache/pip
+  python_deps_script:
+    - pip install -r requirements.txt -r .github/requirements.txt
+  julia_cache:
+    folder: ~/.julia
+  upload_caches:
+    - pip
+    - julia
+  julia_deps_script:
+    - JULIA_PROJECT="" julia --color=yes -e 'import Pkg; Pkg.Registry.update(); Pkg.add(["Literate", "PrettyTables"])'
+    - JULIA_PROJECT=@. julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile(); Pkg.gc()'
+  literate_script:
+    - julia -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

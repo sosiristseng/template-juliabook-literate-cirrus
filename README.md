@@ -2,11 +2,6 @@
 
 Click `Use this template` button to copy this repository.
 
-See also:
-
-- [template-quarto-julia](https://github.com/sosiristseng/template-quarto-julia): using GitHub actions and dynamic matrix to execute notebooks in parallel and [quarto][] to rendeer the website.
-
-[quarto]: https://quarto.org/
 [jupyter-book]: https://jupyterbook.org/
 [Cirrus CI]: https://cirrus-ci.org/
 
@@ -18,27 +13,28 @@ See also:
 - [cirrus-notify.yml](.github/workflows/cirrus-notify.yml) for notification in GitHub in case of execution error
 - [Dockerfile](.github/Dockerfile) for runtime environment
 
-You'll need a repo scope GitHub token (click [here](https://github.com/settings/tokens/new?scopes=repo)) [encrypted](https://cirrus-ci.org/guide/writing-tasks/#encrypted-variables) in cirrus CI. Use the encrypted value as `GH_TOKEN` variable to push the `gh-pages` branch back to GitHub.
-
-GitHub pages may need to be enabled manually:
+GitHub pages may need to be manually enabled:
 
 Open your repository settings => Pages => GitHub Pages
-=> Build and deployment => Source, select the `gh-pages` branch.
+=> Build and deployment => Source, select `GitHub actions`.
 
 ## Jupyter Book and GitHub pages
+
+- [pages.yml](.github/pages.yml)
+- [.github/requirements.txt](.github/requirements.txt)
 
 [Jupyter book][jupyter-book] creates a beautiful website from Markdown and Jupyter notebook files.
 
 ## Automatic dependency updates
 
-### Dependabot and Kodiak Bot
+### Renovate and Kodiak Bot
 
-- [dependabot.yml](.github/dependabot.yml)
+- [renovate.json](renovate.json)
 - [.kodiak.toml](.github/.kodiak.toml)
 
-This repository uses Dependabot to automatically update Julia, Python, and GitHub actions, and [Kodiak bot](https://kodiakhq.com/) to automate pull requests.
+This repository uses [Renovate Bot](https://www.mend.io/renovate/) to automatically update Julia, Python, and GitHub actions, and [Kodiak bot](https://kodiakhq.com/) to automate pull requests.
 
-One needs to enable Kodiak bot and add `automerge` as an issue label for them to work properly.
+One needs to enable both bots and add `automerge` as an issue label for them to work properly.
 
 ### Julia dependencies
 

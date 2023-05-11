@@ -14,7 +14,7 @@ jupyter_book_task:
   get_julia_version_script:
     - echo "JULIA_VERSION=$(python read_toml.py)" | tee -a "$CIRRUS_ENV"
   install_julia_script:
-    - apt-get update && apt_get install -y curl
+    - apt-get update && apt-get install -y curl
     - sh -c "$(curl https://raw.githubusercontent.com/ararslan/CirrusCI.jl/master/bin/install.sh)"
   pip_cache:
     folder: ~/.cache/pip

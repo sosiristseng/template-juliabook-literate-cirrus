@@ -1,0 +1,152 @@
+on:
+  check_suite:
+    types: ['completed']
+
+name: After cirrus
+jobs:
+  notify-error:
+    name: Notify Cirrus CI Failure
+    if: >-
+      github.event.check_suite.app.name == 'Cirrus CI'
+      && github.event.check_suite.conclusion != 'success'
+      && github.event.check_suite.conclusion != 'cancelled'
+      && github.event.check_suite.conclusion != 'neutral'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: octokit/request-action@v2.x
+        id: get_failed_check_run
+        with:
+          route: GET /repos/${{ github.repository }}/check-suites/${{ github.event.check_suite.id }}/check-runs?status=completed
+          mediaType: '{"previews": ["antiope"]}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          echo "Cirrus CI ${{ github.event.check_suite.conclusion }} on ${{ github.event.check_suite.head_branch }} branch!"
+          echo "SHA ${{ github.event.check_suite.head_sha }}"
+          echo $MESSAGE
+          echo "##[error]See $CHECK_RUN_URL for details" && false
+        env:
+          CHECK_RUN_URL: ${{ fromJson(steps.get_failed_check_run.outputs.data).check_runs[0].html_url }}
+
+  binder:
+    name: Build Binder Image
+    if: >-
+      github.event.check_suite.app.name == 'Cirrus CI'
+      && github.event.check_suite.conclusion == 'success'
+      && github.event.check_suite.head_branch == 'main'
+      && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
+      PYTHON_VER: '3.11'
+      ARTIFACT_NAME: 'notebooks.zip'
+    steps:
+    - name: Checkout notebook branch
+      uses: actions/checkout@v3
+    - name: Download notebooks
+      run: wget -qO ${{ env.ARTIFACT_NAME }} https://api.cirrus-ci.com/v1/artifact/github/${{ github.repository }}/jupyter_book/${{ env.ARTIFACT_NAME }}?branch=main
+    - name: Extract notebooks (overwrite mode)
+      run: unzip -o ${{ env.ARTIFACT_NAME }}
+    - name: Display notebooks
+      run: ls -R
+      working-directory: docs/
+    - name: Setup Python ${{ env.PYTHON_VER }}
+      uses: actions/setup-python@v4
+      id: python
+      with:
+        python-version: ${{ env.PYTHON_VER }}
+    - name: Install repo2docker
+      run:
+        pip install -U pip setuptools wheel
+        pip install https://github.com/jupyterhub/repo2docker/archive/main.zip
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Pull Image
+      run: docker pull ${{ env.IMAGE_NAME }} || true
+    - name: Build binder image with repo2docker
+      run: >
+        jupyter-repo2docker
+        --image-name ${{ env.IMAGE_NAME }}
+        --cache-from ${{ env.IMAGE_NAME }}
+        --push --no-run --user-id 1000 --user-name jovyan
+        .
+    - name: Add binder Dockerfile
+      run: |
+        mkdir -p .binder
+        echo "FROM ${{ env.IMAGE_NAME }}" > .binder/Dockerfile
+    - name: Create Pull Request
+      id: cpr
+      uses: peter-evans/create-pull-request@v5
+      with:
+        title: Binder dockerfile update
+        branch: binderfile
+        add-paths: |
+          .binder/Dockerfile
+
+  jupyter-book:
+    name: Jupyter Book
+    if: >-
+      github.event.check_suite.app.name == 'Cirrus CI'
+      && github.event.check_suite.conclusion == 'success'
+      && github.event.check_suite.head_branch == 'main'
+      && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_NAME: 'notebooks.zip'
+      PYTHON_VER: '3.11'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download notebooks
+        run: wget -qO ${{ env.ARTIFACT_NAME }} https://api.cirrus-ci.com/v1/artifact/github/${{ github.repository }}/jupyter_book/${{ env.ARTIFACT_NAME }}?branch=main
+      - name: Extract notebooks (overwrite mode)
+        run: unzip -o ${{ env.ARTIFACT_NAME }}
+      - name: Display notebooks
+        run: ls -R
+        working-directory: docs/
+      - name: Setup Python ${{ env.PYTHON_VER }}
+        uses: actions/setup-python@v4
+        id: python
+        with:
+          python-version: ${{ env.PYTHON_VER }}
+      - uses: syphar/restore-virtualenv@v1
+        id: cache-virtualenv
+        with:
+          requirement_files: .github/requirements.txt  # this is optional
+      - uses: syphar/restore-pip-download-cache@v1
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        # the package installation will only be executed when the
+        # requirements-files have changed.
+      - name: Install Python dependencies
+        run: pip install -r .github/requirements.txt
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      - name: Build website
+        run: jupyter-book build docs/
+      - name: Upload artifact for GH pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/_build/html/
+
+  deploy:
+    name: Deploy to GitHub pages
+    needs: jupyter-book
+    if: ${{ github.ref == 'refs/heads/main'}}
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

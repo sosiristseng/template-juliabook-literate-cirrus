@@ -6,9 +6,13 @@ on:
     - cron: '0 0 1 * *' # Every month
   push:
     branches:
-      main
+      - main
     paths:
-      .github/workflows/linkcheck.yml
+      - '.github/workflows/linkcheck.yml'
+      - 'docs/**'
+
+env:
+  DIR: "docs"
 
 jobs:
   linkcheck:
@@ -20,7 +24,7 @@ jobs:
         uses: julia-actions/setup-julia@v1
       - name: Convert literate notebooks to Markdown
         shell: julia --color=yes {0}
-        working-directory: docs
+        working-directory: ${{ env.DIR }}
         run: |
           import Pkg
           Pkg.add("Literate")
@@ -44,7 +48,7 @@ jobs:
         id: lychee
         with:
           fail: true
-          args: '--accept 200,204,429 --verbose --no-progress --cache --max-cache-age 1d ${{ inputs.dir }}'
+          args: '--accept 200,204,429 --verbose --no-progress --cache --max-cache-age 1d ${{ env.DIR }}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Save lychee cache

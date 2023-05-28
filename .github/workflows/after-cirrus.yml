@@ -2,8 +2,32 @@ on:
   check_suite:
     types: ['completed']
 
-name: GitHub pages
+name: After Cirrus CI
 jobs:
+  continue:
+    name: Notify Cirrus CI Failure
+    if: >-
+      github.event.check_suite.app.name == 'Cirrus CI'
+      && github.event.check_suite.conclusion != 'success'
+      && github.event.check_suite.conclusion != 'cancelled'
+      && github.event.check_suite.conclusion != 'neutral'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: octokit/request-action@v2.x
+        id: get_failed_check_run
+        with:
+          route: GET /repos/${{ github.repository }}/check-suites/${{ github.event.check_suite.id }}/check-runs?status=completed
+          mediaType: '{"previews": ["antiope"]}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          echo "Cirrus CI ${{ github.event.check_suite.conclusion }} on ${{ github.event.check_suite.head_branch }} branch!"
+          echo "SHA ${{ github.event.check_suite.head_sha }}"
+          echo $MESSAGE
+          echo "##[error]See $CHECK_RUN_URL for details" && false
+        env:
+          CHECK_RUN_URL: ${{ fromJson(steps.get_failed_check_run.outputs.data).check_runs[0].html_url }}
+
   jupyter-book:
     name: Jupyter Book
     if: >-
@@ -30,17 +54,11 @@ jobs:
         id: python
         with:
           python-version: ${{ env.PYTHON_VER }}
-      - uses: syphar/restore-virtualenv@v1
-        id: cache-virtualenv
-        with:
-          requirement_files: .github/requirements.txt  # this is optional
-      - uses: syphar/restore-pip-download-cache@v1
-        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-        # the package installation will only be executed when the
-        # requirements-files have changed.
+          cache: 'pip'
+          cache-dependency-path: |
+            .github/requirements.txt
       - name: Install Python dependencies
         run: pip install -r .github/requirements.txt
-        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
       - name: Build website
         run: jupyter-book build docs/
       - name: Upload artifact for GH pages

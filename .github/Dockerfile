@@ -1,4 +1,4 @@
-FROM python:3.11.3-slim
+FROM python:3.11.3-slim as base
 
 ENV JULIA_CI true
 ENV JULIA_NUM_THREADS "auto"
@@ -7,6 +7,8 @@ ENV JULIA_CONDAPKG_BACKEND "Null"
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH ${JULIA_PATH}/bin:${PATH}
 COPY --from=julia:1.9.0 ${JULIA_PATH} ${JULIA_PATH}
+
+FROM base
 
 # Python dependencies
 COPY requirements.txt .

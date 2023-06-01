@@ -19,5 +19,3 @@ COPY Project.toml Manifest.toml ./
 COPY src/ src
 RUN julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])' && \
     julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
-
-CMD ["julia"]

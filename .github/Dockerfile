@@ -1,4 +1,4 @@
-FROM python:3.11.3-slim as base
+FROM python:3.12.0b2-slim as base
 
 ENV JULIA_CI true
 ENV JULIA_NUM_THREADS "auto"

@@ -7,7 +7,7 @@ ENV JULIA_CONDAPKG_BACKEND "Null"
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH ${JULIA_PATH}/bin:${PATH}
 ENV JULIA_CPU_TARGET 'generic;znver2,clone_all;znver3,clone_all'
-COPY --from=julia:1.9.0 ${JULIA_PATH} ${JULIA_PATH}
+COPY --from=julia:1.9.1 ${JULIA_PATH} ${JULIA_PATH}
 
 FROM base
 

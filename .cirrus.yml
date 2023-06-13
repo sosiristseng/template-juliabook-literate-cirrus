@@ -3,11 +3,12 @@ literate_task:
   auto_cancellation: 'true'
   execution_lock: $CIRRUS_BASE_SHA
   env:
+    CACHE_NUM: '1'
     NPROC: '2'
     GKSwstype: '100'
     JULIA_NUM_THREADS: 'auto'
     JULIA_CI: 'true'
-    JULIA_CPU_TARGET: 'generic;znver2,clone_all;znver3,clone_all'
+    JULIA_CPU_TARGET: 'generic;znver3,clone_all'
     JULIA_NUM_PRECOMPILE_TASKS: '4'
   container:
     image: julia:1.9.1
@@ -17,7 +18,7 @@ literate_task:
   julia_pkgs_cache:
     folder: ~/.julia
     fingerprint_script:
-      - echo $CIRRUS_OS
+      - echo $CIRRUS_OS-$CACHE_NUM
       - cat Manifest.toml
   install_script: |
     julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'

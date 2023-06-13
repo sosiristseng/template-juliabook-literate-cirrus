@@ -4,7 +4,7 @@
 using [PythonPlot.jl](https://github.com/stevengj/PythonPlot.jl)
 ===#
 
-using PyPlot
+using PythonPlot
 using Random
 Random.seed!(2022)
 

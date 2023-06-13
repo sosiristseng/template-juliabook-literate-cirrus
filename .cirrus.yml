@@ -21,7 +21,7 @@ literate_task:
       - cat Manifest.toml
   install_script: |
     julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'
-    julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile(); using PyPlot'
+    julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
   literate_script: julia -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

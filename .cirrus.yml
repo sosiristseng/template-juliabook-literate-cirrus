@@ -12,7 +12,7 @@ literate_task:
     JULIA_CPU_TARGET: 'generic;znver2,clone_all;znver3,clone_all'
     JULIA_NUM_PRECOMPILE_TASKS: '4'
   container:
-    dockerfile: julia:1.9.1
+    image: julia:1.9.1
     cpu: 1
     memory: 4G
     greedy: true

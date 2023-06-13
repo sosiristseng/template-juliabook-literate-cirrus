@@ -1,15 +1,29 @@
-jupyter_book_task:
+literate_task:
   only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_BASE_BRANCH == 'main' || $CIRRUS_TAG != ''
-  auto_cancellation: true
+  auto_cancellation: 'true'
+  execution_lock: $CIRRUS_BASE_SHA
   env:
-    NPROC: 2
-    GKSwstype: 100
-    JULIA_PROJECT: $CIRRUS_WORKING_DIR
+    NPROC: '2'
+    GKSwstype: '100'
+    JULIA_NUM_THREADS: 'auto'
+    PYTHON: ''
+    JULIA_CONDAPKG_BACKEND: 'Null'
+    JULIA_CI: 'true'
+    JULIA_CPU_TARGET: 'generic;znver2,clone_all;znver3,clone_all'
+    JULIA_NUM_PRECOMPILE_TASKS: '4'
   container:
-    dockerfile: .github/Dockerfile
+    dockerfile: julia:1.9.1
     cpu: 1
     memory: 4G
     greedy: true
+  julia_pkgs_cache:
+    folder: ~/.julia
+    fingerprint_script:
+      - echo $CIRRUS_OS
+      - cat Manifest.toml
+  install_script: |
+    julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'
+    julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
   literate_script: julia -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

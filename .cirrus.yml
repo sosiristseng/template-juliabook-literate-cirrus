@@ -1,7 +1,6 @@
 literate_task:
   only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_BASE_BRANCH == 'main' || $CIRRUS_TAG != ''
   auto_cancellation: 'true'
-  execution_lock: $CIRRUS_BASE_SHA
   env:
     CACHE_NUM: '1'
     NPROC: '2'

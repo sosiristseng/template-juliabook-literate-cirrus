@@ -22,6 +22,6 @@ literate_task:
   install_script: |
     julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'
     julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
-  literate_script: julia -p ${NPROC} literate.jl
+  literate_script: JULIA_PROJECT=@. julia --color=yes -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

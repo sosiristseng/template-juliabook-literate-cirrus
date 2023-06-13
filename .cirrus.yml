@@ -8,7 +8,7 @@ literate_task:
     JULIA_NUM_THREADS: 'auto'
     JULIA_DEPOT_PATH: /srv/juliapkgs
     JULIA_CI: 'true'
-    JULIA_CPU_TARGET: 'znver3'
+    JULIA_CPU_TARGET: 'generic'
     JULIA_NUM_PRECOMPILE_TASKS: '4'
   container:
     image: julia:1.9.1

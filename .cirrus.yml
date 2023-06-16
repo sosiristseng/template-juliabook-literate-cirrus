@@ -1,28 +1,15 @@
 literate_task:
   only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_BASE_BRANCH == 'main' || $CIRRUS_TAG != ''
-  auto_cancellation: 'true'
+  execution_lock: $CIRRUS_CHANGE_IN_REPO
+  auto_cancellation: true
   env:
-    CACHE_NUM: '1'
     NPROC: '2'
-    GKSwstype: '100'
-    JULIA_NUM_THREADS: 'auto'
-    JULIA_DEPOT_PATH: /srv/juliapkgs
-    JULIA_CI: 'true'
-    JULIA_CPU_TARGET: 'generic'
-    JULIA_NUM_PRECOMPILE_TASKS: '4'
   container:
-    image: julia:1.9.1
+    dockerfile: .github/Dockerfile
     cpu: 1
     memory: 4G
     greedy: true
-  julia_pkgs_cache:
-    folder: $JULIA_DEPOT_PATH
-    fingerprint_script:
-      - echo ${CIRRUS_OS}-${CACHE_NUM}-${JULIA_CPU_TARGET}
-      - cat Manifest.toml
-  install_script: |
-    julia --project="" --color=yes -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'
-    julia --project=@. --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
-  literate_script: JULIA_PROJECT=@. julia --color=yes -p ${NPROC} literate.jl
+  literate_script: |
+    JULIA_PROJECT=@. julia --color=yes -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

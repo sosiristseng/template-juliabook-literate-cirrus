@@ -4,7 +4,7 @@
 Using [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl) since this package is tricky to install and load.
 ===#
 
-import PythonPlot as plt
+import PyPlot as plt
 using Random
 Random.seed!(2022)
 

@@ -13,6 +13,8 @@ COPY --from=julia:1.9.1 ${JULIA_PATH} ${JULIA_PATH}
 
 FROM base
 
+WORKDIR /app
+
 # Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

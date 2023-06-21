@@ -4,6 +4,7 @@ ci_task:
   auto_cancellation: true
   env:
     NPROC: '2'
+    GKSwstype: '100' # Headless Plots.jl
   container:
     dockerfile: .github/Dockerfile
     cpu: 1

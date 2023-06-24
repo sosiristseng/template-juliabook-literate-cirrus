@@ -1,10 +1,8 @@
 ci_task:
   only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_BASE_BRANCH == 'main' || $CIRRUS_TAG != ''
-  execution_lock: $CIRRUS_CHANGE_IN_REPO
   auto_cancellation: true
   env:
     NPROC: '2'
-    GKSwstype: '100' # Headless Plots.jl
   container:
     dockerfile: .github/Dockerfile
     cpu: 1

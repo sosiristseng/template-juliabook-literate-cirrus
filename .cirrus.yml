@@ -1,4 +1,4 @@
-ci_task:
+CI_task:
   only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_BASE_BRANCH == 'main' || $CIRRUS_TAG != ''
   auto_cancellation: true
   env:

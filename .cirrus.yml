@@ -11,6 +11,6 @@ ci_task:
     memory: 4G
     greedy: true
   literate_script: |
-    JULIA_PROJECT=@. julia --color=yes -p ${NPROC} literate.jl
+    JULIA_PROJECT=@. julia --color=yes --heap-size-hint=3500m -p ${NPROC} literate.jl
   notebooks_artifacts:
     path: "docs/**"

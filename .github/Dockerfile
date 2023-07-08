@@ -9,7 +9,7 @@ ENV GKSwstype 100
 ENV JULIA_CPU_TARGET 'generic;znver3,clone_all'
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH ${JULIA_PATH}/bin:${PATH}
-COPY --from=julia:1.9.1 ${JULIA_PATH} ${JULIA_PATH}
+COPY --from=julia:1.9.2 ${JULIA_PATH} ${JULIA_PATH}
 
 FROM base
 
